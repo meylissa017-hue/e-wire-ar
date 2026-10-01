@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-WIRE AR — Memuatkan…</title>
+  <script>
+    (function () {
+      var q = location.search || '';
+      var host = location.hostname;
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS && location.protocol === 'http:') {
+        location.replace('https://' + host + ':8443/e-wire-ar/play.html' + q);
+      } else {
+        location.replace('play.html' + q);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p style="font-family:system-ui;text-align:center;padding:40px">
+    Memuatkan E-WIRE AR…<br>
+    <a href="play.html">Klik jika tidak redirect</a>
+  </p>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Compile E-WIRE AR Marker</title>
+  <style>
+    body { font-family: system-ui; max-width: 520px; margin: 40px auto; padding: 20px; }
+    button { padding: 12px 20px; font-size: 16px; cursor: pointer; }
+    pre { background: #f5f5f5; padding: 12px; font-size: 12px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Compile marker.mind</h1>
+  <p>Pilih <code>assets/marker.png</code> kemudian klik Compile. Simpan fail sebagai <code>assets/marker.mind</code>.</p>
+  <button id="btnCompile">Compile marker.png &amp; Download .mind</button>
+  <pre id="log">Loading compiler…</pre>
+  <script type="module">
+    import { Compiler } from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js';
+    const log = document.getElementById('log');
+    const btn = document.getElementById('btnCompile');
+
+    async function compileFromUrl(url, outName) {
+      btn.disabled = true;
+      log.textContent = 'Loading ' + url + '…';
+      const img = await loadImage(url);
+      log.textContent = 'Compiling… (30–60s)';
+      const compiler = new Compiler();
+      await compiler.compileImageTargets([img], (p) => {
+        log.textContent = 'Compiling… ' + Math.round(p) + '%';
+      });
+      const buf = await compiler.exportData();
+      const blob = new Blob([buf]);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = outName;
+      a.click();
+      log.textContent = 'Done! Saved ' + outName;
+      btn.disabled = false;
+    }
+
+    btn.addEventListener('click', () => compileFromUrl('../assets/marker.png', 'marker.mind'));
+
+    log.textContent = 'Ready — click Compile (uses ../assets/marker.png)';
+
+    function loadImage(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+  </script>
+</body>
+</html>

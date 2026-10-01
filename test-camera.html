@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Test Kamera AR</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #111; color: #fff; min-height: 100vh; padding: 20px; }
+    h1 { font-size: 20px; margin-bottom: 16px; }
+    .status { background: #222; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; }
+    .status.ok { border-left: 4px solid #0f0; }
+    .status.err { border-left: 4px solid #f00; }
+    .status.wait { border-left: 4px solid #ff0; }
+    button { 
+      display: block; width: 100%; padding: 16px; margin: 8px 0; 
+      border: none; border-radius: 12px; font-size: 16px; font-weight: bold;
+      background: #ffd600; color: #000; cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; }
+    #arWrap { 
+      width: 100%; height: 50vh; background: #000; border-radius: 12px; 
+      overflow: hidden; margin-top: 16px; position: relative; display: none;
+    }
+    #arWrap.show { display: block; }
+    #arWrap a-scene { position: absolute !important; inset: 0 !important; }
+    #arWrap video { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; object-fit: cover !important; }
+    #arWrap .a-canvas { background: transparent !important; }
+    #log { margin-top: 16px; font-size: 11px; background: #1a1a1a; padding: 12px; border-radius: 8px; max-height: 200px; overflow-y: auto; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Ujian Kamera AR</h1>
+  
+  <div class="status wait" id="httpsStatus">Menyemak HTTPS...</div>
+  <div class="status wait" id="cameraStatus">Kamera: belum diminta</div>
+  <div class="status wait" id="arStatus">AR: belum dimulakan</div>
+  
+  <button id="btnCamera">📷 Minta Kamera</button>
+  <button id="btnAR" disabled>🎯 Mulakan AR (MindAR)</button>
+  <a href="play.html" style="display:block;text-align:center;margin-top:16px;color:#ffd600">← Kembali ke Game</a>
+  
+  <div id="arWrap">
+    <a-scene
+      id="arScene"
+      mindar-image="imageTargetSrc: assets/marker.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;"
+      embedded
+      renderer="colorManagement: true; alpha: true; antialias: false"
+      background="transparent: true"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false">
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-box position="0 0.1 0" width="0.2" height="0.2" depth="0.2" color="#ffd600" material="shader: flat"></a-box>
+      </a-entity>
+    </a-scene>
+  </div>
+  
+  <div id="log"></div>
+
+  <script>
+    var logs = [];
+    function log(msg, type) {
+      var ts = new Date().toLocaleTimeString();
+      logs.push('[' + ts + '] ' + msg);
+      document.getElementById('log').textContent = logs.join('\n');
+      console.log('[TEST]', msg);
+      if (type === 'ok' || type === 'err' || type === 'wait') {
+        var el = document.getElementById(type === 'ok' ? 'httpsStatus' : (type === 'err' ? 'httpsStatus' : 'httpsStatus'));
+      }
+    }
+    
+    function setStatus(id, msg, type) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.textContent = msg;
+        el.className = 'status ' + (type || 'wait');
+      }
+    }
+    
+    // Semak HTTPS
+    var isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (isSecure) {
+      setStatus('httpsStatus', '✓ HTTPS/Localhost OK', 'ok');
+      log('HTTPS: OK');
+    } else {
+      setStatus('httpsStatus', '❌ Bukan HTTPS! Kamera mungkin tidak berfungsi pada iPhone.', 'err');
+      log('HTTPS: TIDAK - kamera iPhone memerlukan HTTPS');
+    }
+    
+    // Butang Kamera
+    document.getElementById('btnCamera').addEventListener('click', function() {
+      log('Meminta akses kamera...');
+      setStatus('cameraStatus', '⏳ Meminta akses kamera...', 'wait');
+      this.disabled = true;
+      
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(function(stream) {
+          log('Kamera BERJAYA diakses!');
+          setStatus('cameraStatus', '✓ Kamera berjaya diakses', 'ok');
+          document.getElementById('btnAR').disabled = false;
+          
+          // Hentikan stream kerana MindAR akan buat sendiri
+          stream.getTracks().forEach(function(t) { t.stop(); });
+        })
+        .catch(function(err) {
+          log('Kamera GAGAL: ' + err.message);
+          setStatus('cameraStatus', '❌ Kamera ditolak: ' + err.message, 'err');
+          document.getElementById('btnCamera').disabled = false;
+        });
+    });
+    
+    // Butang AR
+    document.getElementById('btnAR').addEventListener('click', function() {
+      log('Memulakan MindAR...');
+      setStatus('arStatus', '⏳ Memulakan MindAR...', 'wait');
+      this.disabled = true;
+      
+      var arWrap = document.getElementById('arWrap');
+      var scene = document.getElementById('arScene');
+      
+      arWrap.classList.add('show');
+      
+      function startAR() {
+        log('Scene loaded, starting MindAR...');
+        var sys = scene.systems && scene.systems['mindar-image-system'];
+        var comp = scene.components && scene.components['mindar-image'];
+        
+        var startFn = sys && sys.start ? sys.start.bind(sys) : (comp && comp.start ? comp.start.bind(comp) : null);
+        
+        if (startFn) {
+          var p = startFn();
+          if (p && p.then) {
+            p.then(function() {
+              log('MindAR BERJAYA dimulakan!');
+              setStatus('arStatus', '✓ MindAR aktif - imbas marker', 'ok');
+            }).catch(function(err) {
+              log('MindAR GAGAL: ' + (err.message || err));
+              setStatus('arStatus', '❌ MindAR gagal: ' + (err.message || err), 'err');
+            });
+          } else {
+            log('MindAR dimulakan (tiada promise)');
+            setStatus('arStatus', '✓ MindAR aktif (sync)', 'ok');
+          }
+        } else {
+          log('MindAR system/component tidak ditemui');
+          setStatus('arStatus', '❌ MindAR tidak sedia', 'err');
+        }
+      }
+      
+      if (scene.hasLoaded) {
+        startAR();
+      } else {
+        scene.addEventListener('loaded', startAR, { once: true });
+      }
+      
+      scene.addEventListener('arReady', function() {
+        log('Event: arReady');
+        setStatus('arStatus', '✓ AR Ready - imbas marker', 'ok');
+      });
+      
+      scene.addEventListener('arError', function(e) {
+        log('Event: arError - ' + (e.detail || 'unknown'));
+        setStatus('arStatus', '❌ AR Error', 'err');
+      });
+      
+      scene.addEventListener('targetFound', function() {
+        log('Event: targetFound - MARKER DIKESAN!');
+        setStatus('arStatus', '🎯 MARKER DIKESAN!', 'ok');
+      });
+      
+      scene.addEventListener('targetLost', function() {
+        log('Event: targetLost');
+      });
+    });
+    
+    log('Halaman test dimuatkan');
+  </script>
+</body>
+</html>

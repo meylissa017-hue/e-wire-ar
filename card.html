@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-WIRE AR — Kad Cetakan</title>
+  <style>
+    @media print {
+      body { margin: 0; }
+      .no-print { display: none !important; }
+      .card { box-shadow: none !important; page-break-inside: avoid; }
+    }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #e8ecf0;
+      margin: 0;
+      padding: 20px;
+      color: #1a2030;
+    }
+    .no-print {
+      max-width: 520px;
+      margin: 0 auto 20px;
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+    }
+    .warn {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 6px; }
+    #urlInput {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .btn-row button {
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: #1565c0;
+      color: #fff;
+    }
+    .btn-row button.secondary { background: #455a64; }
+    #qrcode { min-height: 156px; display: flex; align-items: center; justify-content: center; }
+    #qrcode img { display: block; width: 150px; height: 150px; }
+    #qrUrlText { font-size: 9px; word-break: break-all; color: #444; margin-top: 6px; max-width: 160px; }
+    .marker-img { width: 200px; height: 200px; border: 2px solid #0a1628; border-radius: 8px; }
+    @media print {
+      .marker-img {
+        width: 75mm !important;
+        height: 75mm !important;
+        max-width: none;
+      }
+    }
+    .marker-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #c62828;
+      letter-spacing: 0.08em;
+      margin: 12px 0 6px;
+    }
+    .qr-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #1565c0;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <div class="warn" id="fileWarn" style="display:none">
+      <strong>⚠️ Jangan buka fail terus dari folder PC!</strong><br>
+      QR akan jadi <code>file://</code> dan <strong>tidak boleh</strong> discan telefon.<br>
+      Jalankan server pada PC, kemudian buka kad melalui Wi‑Fi.
+    </div>
+    <h2>🪪 AR Wiring Card — Cetak</h2>
+    <ol style="font-size:14px;line-height:1.6;margin-bottom:14px">
+      <li>PC &amp; telefon <strong>sambung Wi‑Fi sama</strong></li>
+      <li>PC: <code>python -m http.server 8000</code> dalam folder projek</li>
+      <li>iPhone: guna <code>serve-https-simple.py</code> port 8443</li>
+      <li>Semak QR di bawah → cetak A4</li>
+    </ol>
+    <label for="urlInput">URL permainan untuk QR:</label>
+    <input type="url" id="urlInput" placeholder="http://192.168.x.x:8000/e-wire-ar/index.html" />
+    <div class="btn-row">
+      <button type="button" id="btnGenQr">🔄 Jana semula QR</button>
+      <button type="button" class="secondary" onclick="window.print()">🖨️ Cetak Kad</button>
+    </div>
+    <p><a href="play.html">← Kembali ke permainan</a></p>
+  </div>
+
+  <div class="card" style="
+    max-width: 480px; margin: 0 auto; background: #fff;
+    border: 4px solid #0a1628; border-radius: 16px; padding: 28px 24px;
+    text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  ">
+    <div style="font-size:36px">⚡</div>
+    <h1 style="margin:8px 0;font-size:28px;letter-spacing:0.06em">E-WIRE AR</h1>
+    <p style="margin:0;font-size:13px;font-weight:700;color:#1565c0">CU2 – ELECTRICAL WIRING</p>
+    <p style="margin:8px 0 20px;font-size:12px;color:#555">LEVEL 5 · ONE-WAY LIGHTING</p>
+
+    <p class="marker-label">② IMBAS GAMBAR INI UNTUK AR 3D</p>
+    <p style="font-size:11px;color:#c62828;font-weight:700;margin-bottom:8px">Gambar "MINDEAR" — BUKAN QR</p>
+    <img class="marker-img" src="assets/marker.png" alt="AR Marker" />
+    <p style="font-size:10px;color:#666;margin:8px 0 16px">Cetak jelas · elak lipatan · cahaya sekata</p>
+
+    <p class="qr-label">① SCAN QR UNTUK BUKA PERMAINAN</p>
+    <div style="margin:12px 0">
+      <div id="qrcode"></div>
+      <div id="qrUrlText"></div>
+    </div>
+
+    <p style="font-size:16px;font-weight:800;letter-spacing:0.12em;color:#0a1628;margin:0">SCAN TO START</p>
+    <p style="font-size:11px;color:#888;margin-top:8px">SCAN • MATCH • WIRE • LEARN</p>
+  </div>
+
+  <script>
+    (function () {
+      var input = document.getElementById('urlInput');
+      var qrBox = document.getElementById('qrcode');
+      var qrText = document.getElementById('qrUrlText');
+
+      if (location.protocol === 'file:') {
+        document.getElementById('fileWarn').style.display = 'block';
+      }
+
+      function defaultUrl() {
+        return location.origin + location.pathname.replace(/card\.html$/, 'index.html');
+      }
+
+      function genQr() {
+        var url = (input.value || defaultUrl()).trim();
+        input.value = url;
+        qrText.textContent = url;
+        qrBox.innerHTML = '';
+        var img = document.createElement('img');
+        img.alt = 'QR Code';
+        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(url);
+        qrBox.appendChild(img);
+      }
+
+      input.value = defaultUrl();
+      document.getElementById('btnGenQr').addEventListener('click', genQr);
+      genQr();
+    })();
+  </script>
+</body>
+</html>

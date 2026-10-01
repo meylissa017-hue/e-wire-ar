@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Test AR Simple</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    * { margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #111; color: #fff; overflow: hidden; }
+    #ui {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(0,0,0,0.9);
+      padding: 16px;
+      text-align: center;
+    }
+    #status {
+      font-size: 14px;
+      margin-bottom: 12px;
+      padding: 10px;
+      background: #222;
+      border-radius: 8px;
+    }
+    #status.found { background: #1b5e20; }
+    #status.error { background: #b71c1c; }
+    button {
+      padding: 14px 28px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #ffd600;
+      color: #000;
+      font-weight: bold;
+      margin: 4px;
+    }
+    a { color: #ffd600; }
+    .info { font-size: 12px; color: #888; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <a-scene
+    id="scene"
+    mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;"
+    embedded
+    renderer="colorManagement: true; alpha: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-box position="0 0.1 0" width="0.3" height="0.3" depth="0.3" color="#ffd600" 
+             animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
+      </a-box>
+      <a-text value="AR BERFUNGSI!" position="0 0.35 0" align="center" color="#00ff00" width="2"></a-text>
+    </a-entity>
+  </a-scene>
+
+  <div id="ui">
+    <div id="status">Tekan "Mula AR" untuk mulakan</div>
+    <button id="btnStart">📷 Mula AR</button>
+    <button id="btnStop" style="display:none">⏹ Henti</button>
+    <p class="info">
+      Marker ujian: <a href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" target="_blank">Buka gambar marker</a>
+    </p>
+    <p class="info">Imbas gambar "MINDEAR" dari link di atas</p>
+  </div>
+
+  <script>
+    const scene = document.getElementById('scene');
+    const status = document.getElementById('status');
+    const btnStart = document.getElementById('btnStart');
+    const btnStop = document.getElementById('btnStop');
+    
+    function setStatus(msg, type) {
+      status.textContent = msg;
+      status.className = type || '';
+    }
+    
+    btnStart.addEventListener('click', async () => {
+      setStatus('Meminta kamera...');
+      btnStart.disabled = true;
+      
+      try {
+        const system = scene.systems['mindar-image-system'];
+        await system.start();
+        setStatus('🔍 AR Aktif — imbas marker MINDEAR');
+        btnStart.style.display = 'none';
+        btnStop.style.display = 'inline-block';
+      } catch (e) {
+        setStatus('Ralat: ' + e.message, 'error');
+        btnStart.disabled = false;
+      }
+    });
+    
+    btnStop.addEventListener('click', () => {
+      const system = scene.systems['mindar-image-system'];
+      system.stop();
+      setStatus('AR dihentikan');
+      btnStart.style.display = 'inline-block';
+      btnStart.disabled = false;
+      btnStop.style.display = 'none';
+    });
+    
+    scene.addEventListener('targetFound', () => {
+      setStatus('✅ MARKER DIKESAN! Kotak kuning muncul!', 'found');
+    });
+    
+    scene.addEventListener('targetLost', () => {
+      setStatus('🔍 Marker hilang — imbas semula');
+    });
+    
+    scene.addEventListener('arError', (e) => {
+      setStatus('Ralat AR: ' + (e.detail || 'Unknown'), 'error');
+    });
+  </script>
+</body>
+</html>

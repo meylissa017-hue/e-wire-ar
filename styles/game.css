@@ -1,0 +1,509 @@
+/* E-WIRE AR — game screens */
+
+/* Splash */
+#screen-splash {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 24px;
+}
+
+.splash-bolt {
+  font-size: 64px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 20px rgba(255, 214, 0, 0.5));
+}
+
+.splash-title {
+  font-size: clamp(32px, 9vw, 44px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  background: linear-gradient(90deg, var(--accent), #fff8e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.splash-cu {
+  font-size: 12px;
+  color: var(--accent2);
+  margin: 8px 0 4px;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+}
+
+.splash-tag {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+
+.splash-desc {
+  font-size: 14px;
+  color: var(--muted);
+  max-width: 300px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+/* Level menu */
+.level-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.level-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: left;
+  color: inherit;
+  width: 100%;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.level-card:active:not(.locked) {
+  border-color: var(--accent);
+  transform: scale(0.98);
+}
+
+.level-card.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.level-num {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.level-card.locked .level-num { color: var(--muted); }
+
+.level-info h3 {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.level-info p {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.level-xp {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* KNOW IT — panel soalan profesional */
+#screen-level-1 {
+  padding: 0 !important;
+  min-height: 100dvh !important;
+}
+
+#screen-level-1 .know-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 310;
+  padding: 10px 14px;
+  padding-top: max(10px, env(safe-area-inset-top));
+  margin: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.75), transparent);
+}
+
+.level-pill {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  background: rgba(255, 214, 0, 0.12);
+  border: 1px solid rgba(255, 214, 0, 0.3);
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.know-sheet {
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #0c1424;
+  border-top: none;
+  border-radius: 0;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  max-height: none;
+  box-shadow: none;
+}
+
+body.ar-split-level .know-sheet {
+  max-height: none;
+}
+
+.know-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.know-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent2);
+  letter-spacing: 0.06em;
+}
+
+.know-ar-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(255, 214, 0, 0.1);
+  border: 1px solid rgba(255, 214, 0, 0.35);
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.know-ar-badge.found {
+  color: var(--ok);
+  background: rgba(0, 200, 83, 0.12);
+  border-color: rgba(0, 200, 83, 0.4);
+}
+
+.know-question {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.know-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.know-sheet.marker-found {
+  max-height: 28vh;
+  padding-top: 8px;
+}
+
+.know-sheet.marker-found .know-question {
+  font-size: 16px;
+  color: #fff;
+  font-weight: 800;
+}
+
+.know-sheet.marker-found .know-hint {
+  margin-bottom: 8px;
+}
+
+body.ar-marker-active .reticle-wrap {
+  border-color: var(--ok);
+}
+
+.know-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 360px) {
+  .know-options { grid-template-columns: 1fr; }
+}
+
+.know-options .opt-btn {
+  margin-bottom: 0;
+  padding: 10px 8px;
+  font-size: 13px;
+  text-align: center;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.know-options .opt-letter {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.know-options .opt-text {
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+/* Menu & level lain — latar pejal bila kamera hidup */
+body.ar-live #screen-levels,
+body.ar-live #screen-level-2,
+body.ar-live #screen-level-5,
+body.ar-live #screen-know-done,
+body.ar-live #screen-match-done,
+body.ar-live #screen-final,
+body.ar-live #screen-locked-3,
+body.ar-live #screen-locked-4 {
+  background: var(--bg);
+  min-height: 100dvh;
+}
+
+.component-visual { display: none; }
+
+.component-name { display: none; }
+
+.opt-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: rgba(18, 28, 48, 0.95);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 15px;
+  text-align: left;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.opt-btn:active {
+  transform: scale(0.98);
+  border-color: var(--accent);
+}
+
+.opt-btn:disabled { opacity: 0.6; }
+.opt-btn.selected-correct { 
+  border-color: var(--ok); 
+  background: rgba(0, 200, 83, 0.25);
+  color: var(--ok);
+}
+.opt-btn.selected-wrong { 
+  border-color: var(--bad); 
+  background: rgba(255, 82, 82, 0.2);
+}
+
+.prog {
+  font-size: 12px;
+  color: var(--accent2);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* MATCH IT */
+.wire-pool {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.wire-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  touch-action: none;
+  user-select: none;
+}
+
+.wire-chip.dragging {
+  opacity: 0.5;
+  border-color: var(--accent);
+}
+
+.wire-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.match-zones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.match-zone {
+  padding: 14px;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  min-height: 64px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.match-zone.hover {
+  border-color: var(--accent);
+  background: rgba(255, 214, 0, 0.06);
+}
+
+.match-zone.done {
+  border-style: solid;
+  border-color: var(--ok);
+  background: rgba(0, 200, 83, 0.08);
+}
+
+.zone-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.zone-slot {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* WIRE IT */
+.wire-diagram {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+  padding: 20px;
+  background: var(--surface2);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.wire-diagram.lit {
+  border-color: var(--accent);
+  box-shadow: 0 0 30px rgba(255, 214, 0, 0.2);
+}
+
+.wire-node {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 13px;
+  min-width: 64px;
+}
+
+.wire-node.active {
+  border-color: var(--accent2);
+  box-shadow: 0 0 12px rgba(0, 230, 118, 0.3);
+}
+
+.wire-node.done {
+  border-color: var(--ok);
+  background: rgba(0, 200, 83, 0.1);
+}
+
+.wire-arrow {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.lamp-glow {
+  display: none;
+  text-align: center;
+  font-size: 48px;
+  margin: 16px 0;
+  animation: pulse 1s ease infinite;
+}
+
+.wire-diagram.lit + .lamp-glow { display: block; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Final & locked */
+.final-score {
+  text-align: center;
+  padding: 32px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.final-score .trophy { font-size: 56px; margin-bottom: 12px; }
+
+.score-big {
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--accent);
+  margin: 12px 0;
+}
+
+.badge {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--accent2);
+  margin-bottom: 24px;
+}
+
+.score-note {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.locked-msg {
+  text-align: center;
+  padding: 48px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.locked-msg .lock { font-size: 48px; margin-bottom: 16px; }
+
+.preview-list {
+  text-align: left;
+  margin: 20px 0;
+  padding: 16px;
+  background: var(--surface2);
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.8;
+  max-width: 320px;
+}
+
+.preview-list li { margin-left: 18px; }

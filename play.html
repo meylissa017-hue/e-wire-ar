@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#050810" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <title>E-WIRE AR — CU2 Pendawaian Elektrik</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script>
+    try {
+      AFRAME.registerComponent('billboard', {
+        tick: function () {
+          var cam = this.el.sceneEl && this.el.sceneEl.camera;
+          if (!cam || !cam.el) return;
+          var p = new THREE.Vector3();
+          cam.el.object3D.getWorldPosition(p);
+          this.el.object3D.lookAt(p);
+        }
+      });
+    } catch (e) { console.warn('billboard:', e); }
+  </script>
+  <link rel="stylesheet" href="styles/base.css?v=2" />
+  <link rel="stylesheet" href="styles/game.css?v=10" />
+  <link rel="stylesheet" href="styles/ar.css?v=27" />
+</head>
+<body>
+  <div id="xpFlash" class="xp-flash"></div>
+
+  <!-- AR: kamera + UI dalam imbas -->
+  <div id="arOverlay">
+    <div id="arViewport">
+      <div id="arSceneWrap">
+      <a-scene
+        id="arScene"
+        mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.001; filterBeta: 15; missTolerance: 12; warmupTolerance: 0;"
+        color-space="sRGB"
+        embedded
+        renderer="colorManagement: true; alpha: true; antialias: false; premultipliedAlpha: false;"
+        background="transparent: true"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false">
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+          <a-entity id="arTarget" mindar-image-target="targetIndex: 0">
+            <!-- Model 3D komponen — tengah marker -->
+            <a-entity id="ar-model-mcb" position="0 0.02 0.06" visible="false"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+              <a-box width="0.32" height="0.42" depth="0.18" color="#546E7A" material="shader: flat"></a-box>
+              <a-box position="0 0.02 0.1" width="0.2" height="0.28" depth="0.05" color="#37474F" material="shader: flat"></a-box>
+              <a-box position="-0.06 0.1 0.12" width="0.06" height="0.12" depth="0.04" color="#FFC107" material="shader: flat"></a-box>
+              <a-box position="0.06 0.1 0.12" width="0.06" height="0.12" depth="0.04" color="#FFC107" material="shader: flat"></a-box>
+            </a-entity>
+
+            <a-entity id="ar-model-switch" position="0 0.02 0.06" visible="false"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear">
+              <a-box width="0.32" height="0.32" depth="0.12" color="#6D4C41" material="shader: flat"></a-box>
+              <a-box position="0 0 0.07" width="0.12" height="0.16" depth="0.05" color="#A1887F" material="shader: flat"></a-box>
+            </a-entity>
+
+            <a-sphere id="ar-model-lamp" position="0 0.08 0.06" radius="0.2" color="#FFEB3B"
+              material="shader: flat; emissive: #FFEB3B; emissiveIntensity: 0.9" visible="false"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-sphere>
+
+            <a-box id="ar-model-socket" position="0 0.02 0.06" width="0.38" height="0.26" depth="0.12"
+              color="#EEEEEE" material="shader: flat" visible="false"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-box>
+
+            <a-box id="ar-model-db" position="0 0.04 0.06" width="0.42" height="0.46" depth="0.16"
+              color="#37474F" material="shader: flat" visible="false"
+              animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"></a-box>
+
+            <a-entity id="ar-model-wiring" visible="false" position="0 0.02 0.06">
+              <a-box position="-0.18 0.08 0" width="0.16" height="0.18" depth="0.08" color="#455A64" material="shader: flat"></a-box>
+              <a-box position="0 0.08 0" width="0.12" height="0.16" depth="0.07" color="#795548" material="shader: flat"></a-box>
+              <a-sphere position="0.2 0.14 0" radius="0.1" color="#FFEB3B" material="shader: flat; emissive: #FFEB3B; emissiveIntensity: 1"></a-sphere>
+            </a-entity>
+          </a-entity>
+      </a-scene>
+      </div>
+
+      <div id="arReticle" class="ar-reticle">
+        <div class="reticle-wrap">
+          <div class="reticle-ring"></div>
+          <div class="reticle-corner tl"></div>
+          <div class="reticle-corner tr"></div>
+          <div class="reticle-corner bl"></div>
+          <div class="reticle-corner br"></div>
+        </div>
+        <p class="reticle-hint">Imbas gambar <strong>MINDEAR</strong> — bukan QR</p>
+      </div>
+      <div class="ar-top-bar">
+        <div>
+          <div class="ar-title">E-WIRE AR</div>
+          <div class="ar-status" id="arStatus">Imbas kad AR</div>
+        </div>
+        <button type="button" class="ar-close" id="btnArClose">Tutup</button>
+      </div>
+      <div id="arFoundBurst">✓ Kad Dikesan</div>
+      <div class="ar-hint-bar">Arahkan kamera ke gambar marker pada kad cetakan</div>
+
+      <!-- Soalan + jawapan — LAPIS ATAS kamera (luar canvas) -->
+      <div id="arQuizDock" class="ar-quiz-dock" hidden>
+        <div class="ar-q-head">
+          <span class="ar-q-num" id="arFloatNum">SOALAN 1/5</span>
+          <span class="ar-q-badge" id="arMarkerBadge">📷 Imbas MINDEAR</span>
+        </div>
+        <div class="ar-q-text" id="arFloatText">Apakah aksesori ini?</div>
+        <p class="ar-dock-hint" id="arDockHint">Halakan kamera ke gambar MINDEAR</p>
+        <div id="arAnswersGrid" class="ar-answers-grid"></div>
+        <div id="arFeedbackFloat" class="ar-feedback-inline hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zon AR sahaja — soalan & jawapan di panel bawah (#app) -->
+  <div id="arScanPrompt" class="ar-scan-prompt">
+    <p>📷 Halakan ke gambar <strong>MINDEAR</strong></p>
+  </div>
+
+  <div id="app">
+    <!-- Splash -->
+    <section id="screen-splash" class="screen active" data-screen="screen-splash">
+      <div class="splash-bolt">⚡</div>
+      <h1 class="splash-title">E-WIRE AR</h1>
+      <p class="splash-cu">CU2 – PENDAWAIAN ELEKTRIK TAHAP 2</p>
+      <p class="splash-tag">SCAN • MATCH • WIRE • LEARN</p>
+      <p class="splash-desc">Imbas kad cetakan — model 3D dan cabaran CU2 muncul di persekitaran sebenar anda.</p>
+      <div id="httpsBootBox">
+        <p>📱 iPhone: perlukan <strong>HTTPS</strong> untuk kamera</p>
+        <a id="btnBootHttps" href="#">🔒 Buka versi HTTPS</a>
+      </div>
+      <button type="button" class="btn-primary splash-cta" id="btnBootCam">📷 HIDUPKAN KAMERA &amp; MULA</button>
+      <button type="button" class="btn-secondary splash-cta" id="btnStart" disabled>START GAME</button>
+      <p class="boot-hint" id="bootHint">⏳ Memuatkan skrip...</p>
+      <p class="debug-log" id="debugLog" hidden></p>
+      <a href="card.html" class="btn-secondary">🪪 Kad Cetakan AR</a>
+    </section>
+
+    <!-- Level menu -->
+    <section id="screen-levels" class="screen" data-screen="screen-levels">
+      <div class="top-bar">
+        <button type="button" class="btn-ghost" data-back="screen-splash">← Menu</button>
+        <span class="xp-badge" data-xp>0 XP</span>
+      </div>
+      <h2 style="margin-bottom:16px;font-size:20px">Pilih Level</h2>
+      <div class="level-grid" id="levelGrid"></div>
+      <button type="button" class="btn-secondary" style="margin-top:20px" id="btnReset">↺ Reset XP</button>
+    </section>
+
+    <!-- Level 1 — AR + panel soalan profesional -->
+    <section id="screen-level-1" class="screen" data-screen="screen-level-1">
+      <div class="top-bar know-top">
+        <button type="button" class="btn-ghost" id="btnExitKnow">← Keluar</button>
+        <span class="level-pill">LEVEL 1 · KNOW IT</span>
+        <span class="xp-badge" data-xp>0 XP</span>
+      </div>
+      <div class="know-sheet" id="knowSheet">
+        <div class="know-sheet-head">
+          <span class="know-badge" id="knowProg">Soalan 1 / 5</span>
+          <span class="know-ar-badge" id="knowArBadge">📷 Halakan ke MINDEAR</span>
+        </div>
+        <p class="know-question" id="knowQuestion">Imbas marker — soalan &amp; model 3D muncul dalam AR</p>
+        <p class="know-hint" id="knowHint">Pilih jawapan di bawah</p>
+        <div id="knowOptions" class="know-options"></div>
+        <div id="knowFeedback" class="feedback hidden"></div>
+        <div class="component-visual" id="knowVisual"></div>
+        <p class="component-name" id="knowComponent" hidden>—</p>
+      </div>
+    </section>
+
+    <section id="screen-know-done" class="screen" data-screen="screen-know-done">
+      <div class="final-score">
+        <div class="trophy">⭐</div>
+        <h2>LEVEL 1 SELESAI</h2>
+        <p id="knowDoneScore">—</p>
+        <button type="button" class="btn-primary" data-goto="screen-level-2">Terus ke MATCH IT →</button>
+      </div>
+    </section>
+
+    <!-- Level 2 -->
+    <section id="screen-level-2" class="screen" data-screen="screen-level-2">
+      <div class="top-bar">
+        <button type="button" class="btn-ghost" data-back="screen-levels">← Level</button>
+        <span class="xp-badge" data-xp>0 XP</span>
+      </div>
+      <div class="panel">
+        <h2>🎮 LEVEL 2 — MATCH IT</h2>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">🔌 MATCH THE CONDUCTOR — Seret warna ke L / N / PE</p>
+        <div class="wire-pool" id="wirePool"></div>
+        <div class="match-zones" id="matchZones"></div>
+        <div id="matchFeedback" class="feedback hidden"></div>
+      </div>
+    </section>
+
+    <section id="screen-match-done" class="screen" data-screen="screen-match-done">
+      <div class="final-score">
+        <div class="trophy">⭐⭐⭐</div>
+        <h2>PERFECT MATCH!</h2>
+        <button type="button" class="btn-primary" data-goto="screen-level-5">Terus ke WIRE IT →</button>
+      </div>
+    </section>
+
+    <!-- Level 3 locked -->
+    <section id="screen-locked-3" class="screen" data-screen="screen-locked-3">
+      <div class="top-bar">
+        <button type="button" class="btn-ghost" data-back="screen-levels">← Kembali</button>
+      </div>
+      <div class="locked-msg">
+        <div class="lock">🔒</div>
+        <h2>LEVEL 3 — SELECT IT</h2>
+        <p style="color:var(--muted);margin:8px 0">COMING SOON</p>
+        <p id="selectPreviewMission" style="font-size:14px;max-width:300px;margin:12px 0"></p>
+        <ul class="preview-list" id="selectPreviewList"></ul>
+        <button type="button" class="btn-primary" data-back="screen-levels">Kembali</button>
+      </div>
+    </section>
+
+    <!-- Level 4 locked -->
+    <section id="screen-locked-4" class="screen" data-screen="screen-locked-4">
+      <div class="top-bar">
+        <button type="button" class="btn-ghost" data-back="screen-levels">← Kembali</button>
+      </div>
+      <div class="locked-msg">
+        <div class="lock">🔒</div>
+        <h2>LEVEL 4 — SEQUENCE IT</h2>
+        <p style="color:var(--muted);margin:8px 0">COMING SOON</p>
+        <p id="sequencePreviewHint" style="font-size:13px;color:var(--muted);margin:8px 0"></p>
+        <ul class="preview-list" id="sequencePreviewList"></ul>
+        <button type="button" class="btn-primary" data-back="screen-levels">Kembali</button>
+      </div>
+    </section>
+
+    <!-- Level 5 -->
+    <section id="screen-level-5" class="screen" data-screen="screen-level-5">
+      <div class="top-bar">
+        <button type="button" class="btn-ghost" data-back="screen-levels">← Level</button>
+        <span class="xp-badge" data-xp>0 XP</span>
+      </div>
+      <div class="panel">
+        <h2>🎮 LEVEL 5 — WIRE IT</h2>
+        <p id="wireMission">—</p>
+        <p id="wireStepHint" style="font-size:13px;color:var(--accent2);margin:8px 0">—</p>
+        <button type="button" class="btn-secondary" id="btnWireAr" style="margin-bottom:6px">🔄 Papar Litar AR</button>
+        <p style="font-size:11px;color:var(--muted);margin:-8px 0 12px">Imbas logo MIND di zon AR atas ↑</p>
+        <div class="wire-diagram" id="wireDiagram"></div>
+        <div class="lamp-glow" id="lampGlow">💡</div>
+        <div id="wireFeedback" class="feedback hidden"></div>
+      </div>
+    </section>
+
+    <!-- Final -->
+    <section id="screen-final" class="screen" data-screen="screen-final">
+      <div class="final-score">
+        <div class="trophy">🏆</div>
+        <h2>E-WIRE AR</h2>
+        <p style="font-size:14px;color:var(--muted)">TOTAL SCORE</p>
+        <p class="score-big" id="finalXp">0 XP</p>
+        <p class="badge">⭐ WIRING EXPLORER ⭐</p>
+        <p class="score-note" id="finalNote"></p>
+        <button type="button" class="btn-primary" id="btnPlayAgain">PLAY AGAIN</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    var debugLog = [];
+    function logDebug(msg) {
+      debugLog.push(msg);
+      console.log('[E-WIRE]', msg);
+    }
+    window.onerror = function(msg, url, line) {
+      var el = document.getElementById('bootHint');
+      if (el) el.textContent = '❌ Ralat: ' + msg;
+      return false;
+    };
+    window.addEventListener('unhandledrejection', function(e) {
+      var el = document.getElementById('bootHint');
+      if (el) el.textContent = '❌ ' + (e.reason?.message || e.reason);
+    });
+
+    var cameraBooting = false;
+    window.startCamera = function startCamera(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      if (cameraBooting) return;
+      var btn = document.getElementById('btnBootCam');
+      var hint = document.getElementById('bootHint');
+      cameraBooting = true;
+      if (btn) btn.disabled = true;
+      if (hint) hint.textContent = '⏳ Meminta kamera...';
+
+      import('./src/ar/scene.js?v=27')
+        .then(function (m) { return m.bootCamera(); })
+        .then(function () {
+          if (hint) hint.textContent = '✓ Kamera aktif — tekan START GAME';
+          var btnStart = document.getElementById('btnStart');
+          if (btnStart) { btnStart.disabled = false; btnStart.removeAttribute('disabled'); }
+          document.body.classList.add('ar-camera-ready');
+        })
+        .catch(function (err) {
+          cameraBooting = false;
+          if (btn) btn.disabled = false;
+          var msg = err && err.message ? err.message : String(err);
+          if (hint) hint.textContent = msg === 'need_https' ? '🔒 Guna HTTPS port 8443' : '❌ Kamera: ' + msg;
+        });
+    };
+
+    function goLevels() {
+      document.querySelectorAll('#app .screen').forEach(function (s) {
+        s.classList.remove('active');
+      });
+      var lv = document.getElementById('screen-levels');
+      if (lv) lv.classList.add('active');
+      document.dispatchEvent(new CustomEvent('ewire:screen', { detail: { id: 'screen-levels' } }));
+    }
+
+    window.startGame = function startGame(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      var btn = document.getElementById('btnStart');
+      if (!btn || btn.disabled) return;
+      goLevels();
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var btnCam = document.getElementById('btnBootCam');
+      if (btnCam) {
+        btnCam.addEventListener('click', window.startCamera);
+        btnCam.addEventListener('touchend', window.startCamera, { passive: false });
+      }
+      var btnStart = document.getElementById('btnStart');
+      if (btnStart) {
+        btnStart.addEventListener('click', window.startGame);
+        btnStart.addEventListener('touchend', window.startGame, { passive: false });
+      }
+      var hint = document.getElementById('bootHint');
+      if (hint) hint.textContent = '✓ Sedia v27 — tekan HIDUPKAN KAMERA';
+    });
+  </script>
+  <script type="module" src="src/app.js?v=27"></script>
+</body>
+</html>
