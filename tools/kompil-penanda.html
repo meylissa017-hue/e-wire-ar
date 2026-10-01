@@ -1,0 +1,19 @@
+﻿<!doctype html>
+<meta charset="utf-8">
+<title>Kompil penanda E-WIRE AR</title>
+<pre id="log">memuat…</pre>
+<script type="module">
+  // Mengkompil DUA penanda ke dalam satu fail .mind: indeks 0 = poster, 1 = corak hitam-putih
+  // (sama seperti pustaka penanda dalam projek Unity). Dijalankan oleh tools/kompil.mjs.
+  import { Compiler } from '../vendor/mindar/mindar-image.prod.js';
+  const log = document.getElementById('log');
+  const muat = (src) => new Promise((ok, gagal) => { const i = new Image(); i.onload = () => ok(i); i.onerror = gagal; i.src = src; });
+  try {
+    const imej = await Promise.all([muat('../penanda/poster.png'), muat('../penanda/corak.png')]);
+    const c = new Compiler();
+    await c.compileImageTargets(imej, (p) => { log.textContent = 'kompil ' + Math.round(p) + '%'; });
+    const buf = await c.exportData();
+    window.__mind = Array.from(new Uint8Array(buf));
+    log.textContent = 'SIAP ' + window.__mind.length;
+  } catch (e) { log.textContent = 'RALAT ' + (e && e.message || e); }
+</script>

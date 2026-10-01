@@ -1,26 +1,202 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>E-WIRE AR — Memuatkan…</title>
-  <script>
-    (function () {
-      var q = location.search || '';
-      var host = location.hostname;
-      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS && location.protocol === 'http:') {
-        location.replace('https://' + host + ':8443/e-wire-ar/play.html' + q);
-      } else {
-        location.replace('play.html' + q);
-      }
-    })();
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1A1A2E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>E-WIRE AR</title>
+  <link rel="icon" href="img/ikon.png">
+  <link rel="apple-touch-icon" href="img/ikon.png">
+  <link rel="stylesheet" href="css/app.css?v=1">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/three.module.min.js",
+      "three/addons/": "./vendor/three/addons/",
+      "mindar-image-three": "./vendor/mindar/mindar-image-three.prod.js"
+    }
+  }
   </script>
 </head>
 <body>
-  <p style="font-family:system-ui;text-align:center;padding:40px">
-    Memuatkan E-WIRE AR…<br>
-    <a href="play.html">Klik jika tidak redirect</a>
-  </p>
+  <!-- Kamera + kanvas 3D (MindAR memasukkan <video> dan <canvas> ke sini) -->
+  <div id="ar"></div>
+  <!-- Lapisan sentuhan untuk seret/cubit pada kandungan AR -->
+  <div id="sentuh-ar"></div>
+
+  <div id="ui">
+    <!-- ======================= MENU UTAMA ======================= -->
+    <section class="skrin" id="s-menu">
+      <div class="latar-zarah" aria-hidden="true"></div>
+      <h1 class="tajuk-utama">E-WIRE AR</h1>
+      <p class="subtajuk">CABARAN PEMASANGAN PENDAWAIAN</p>
+      <p class="tagline">IMBAS • PADANKAN • WAYARKAN • BELAJAR</p>
+      <div class="logo-bekas"><span class="cincin"></span><img src="img/kolej-keda-logo.png" alt="Kolej KEDA"></div>
+      <nav class="menu-butang">
+        <button class="butang utama" data-ke="level1">MULA PERMAINAN</button>
+        <button class="butang" data-ke="pilih">PILIH LEVEL</button>
+        <button class="butang" data-ke="solar">TEROKAI SISTEM SOLAR</button>
+        <button class="butang" data-ke="litar">MEMBINA LITAR ELEKTRIK</button>
+        <button class="butang" data-modal="m-caramain">CARA MAIN</button>
+        <button class="butang" data-modal="m-tetapan">TETAPAN</button>
+      </nav>
+      <a class="pautan-apk" id="pautan-apk" hidden>Telefon Android? Muat turun aplikasi penuh</a>
+    </section>
+
+    <!-- ======================= PILIH LEVEL ======================= -->
+    <section class="skrin" id="s-pilih">
+      <header class="bar-atas">
+        <button class="butang kecil" data-ke="menu">← MENU UTAMA</button>
+        <div class="bar-xp"><i></i><span></span></div>
+      </header>
+      <h2 class="tajuk-skrin">PILIH LEVEL</h2>
+      <div class="senarai-level" id="senarai-level"></div>
+    </section>
+
+    <!-- ======================= LEVEL 1 (AR) ======================= -->
+    <section class="skrin ar" id="s-level1">
+      <header class="bar-atas hud">
+        <button class="butang kecil" data-ke="menu">Menu</button>
+        <div class="bar-xp"><i></i><span></span></div>
+        <span class="hud-bintang">★ 0/5</span>
+      </header>
+      <div class="hud-bawah-bar">
+        <div class="titik-kemajuan"></div>
+        <div class="timer"></div>
+      </div>
+      <div class="bingkai-imbas"><b></b><b></b><b></b><b></b><p>Imbas poster E-WIRE AR untuk mula<br><small>Gerakkan telefon perlahan-lahan</small></p></div>
+      <div class="kad-soalan">
+        <div class="soalan-no"></div>
+        <div class="soalan-teks"></div>
+        <div class="soalan-maklum"></div>
+        <div class="jawapan"></div>
+      </div>
+    </section>
+
+    <!-- ======================= LEVEL 2 ======================= -->
+    <section class="skrin" id="s-level2">
+      <header class="bar-atas">
+        <button class="butang kecil" data-ke="pilih">← LEVEL</button>
+        <div class="bar-xp"><i></i><span></span></div>
+      </header>
+      <h2 class="tajuk-skrin">LEVEL 2 — PADANKAN IA</h2>
+      <p class="misi">PADANKAN KONDUKTOR<br><small>Seret wayar ke terminal yang betul</small></p>
+      <div class="kolam-kad"></div>
+      <div class="senarai-slot"></div>
+      <p class="maklum"></p>
+    </section>
+
+    <!-- ======================= LEVEL 3 ======================= -->
+    <section class="skrin" id="s-level3">
+      <header class="bar-atas">
+        <button class="butang kecil" data-ke="pilih">← LEVEL</button>
+        <div class="bar-xp"><i></i><span></span></div>
+      </header>
+      <h2 class="tajuk-skrin">LEVEL 3 — PILIH IA</h2>
+      <p class="misi">MISI: <span class="misi-teks"></span><br><small>Pilih item yang diperlukan</small></p>
+      <div class="grid-item"></div>
+      <p class="maklum"></p>
+      <button class="butang utama butang-semak">SEMAK</button>
+    </section>
+
+    <!-- ======================= LEVEL 4 ======================= -->
+    <section class="skrin" id="s-level4">
+      <header class="bar-atas">
+        <button class="butang kecil" data-ke="pilih">← LEVEL</button>
+        <div class="bar-xp"><i></i><span></span></div>
+      </header>
+      <h2 class="tajuk-skrin">LEVEL 4 — SUSUN IA</h2>
+      <p class="misi">SUSUN LANGKAH PEMASANGAN<br><small>Seret dan lepas mengikut urutan yang betul</small></p>
+      <div class="senarai-slot"></div>
+      <div class="kolam-kad tegak"></div>
+      <p class="maklum"></p>
+    </section>
+
+    <!-- ======================= LEVEL 5 (AR) ======================= -->
+    <section class="skrin ar" id="s-level5">
+      <header class="bar-atas hud">
+        <button class="butang kecil" data-ke="menu">Menu</button>
+        <div class="bar-xp"><i></i><span></span></div>
+      </header>
+      <p class="misi misi-ar">LENGKAPKAN LITAR — Litar Lampu Satu Hala<br><small>Ketik wayar, kemudian ketik terminal yang betul</small></p>
+      <div class="bingkai-imbas"><b></b><b></b><b></b><b></b><p>Imbas poster E-WIRE AR untuk mula<br><small>Gerakkan telefon perlahan-lahan</small></p></div>
+      <div class="kad-soalan">
+        <p class="maklum"></p>
+        <div class="kolam-kad"></div>
+        <div class="senarai-slot"></div>
+      </div>
+    </section>
+
+    <!-- ======================= SOLAR / LITAR (AR) ======================= -->
+    <section class="skrin ar" id="s-pamer">
+      <header class="bar-atas">
+        <button class="butang kecil" data-ke="menu">← MENU UTAMA</button>
+      </header>
+      <div class="pamer-kepala">
+        <h2 class="tajuk-skrin" id="pamer-tajuk"></h2>
+        <p class="pamer-aliran" id="pamer-aliran"></p>
+        <p class="pamer-status" id="pamer-status"></p>
+      </div>
+      <div class="bingkai-imbas"><b></b><b></b><b></b><b></b><p>Imbas poster E-WIRE AR untuk mula<br><small>Gerakkan telefon perlahan-lahan</small></p></div>
+      <div class="lapisan-pin" id="pamer-pin"></div>
+      <div class="pamer-kaki">
+        <div class="legenda" id="pamer-legenda"></div>
+        <p class="petunjuk" id="pamer-petunjuk"></p>
+      </div>
+    </section>
+
+    <!-- ======================= KEPUTUSAN ======================= -->
+    <section class="skrin" id="s-keputusan">
+      <div class="kad-keputusan">
+        <h2 class="tajuk-utama kecil">E-WIRE AR</h2>
+        <p class="label-malap">JUMLAH MARKAH</p>
+        <p class="xp-besar" id="kp-xp">0 XP</p>
+        <p class="bintang-baris" id="kp-bintang"><span>★</span><span>★</span><span>★</span></p>
+        <p class="lencana" id="kp-lencana"></p>
+        <ul class="rekod" id="kp-rekod"></ul>
+        <p class="rekod-jumlah" id="kp-jumlah"></p>
+        <button class="butang utama" id="kp-semula">MAIN SEMULA</button>
+        <button class="butang" data-ke="menu">MENU UTAMA</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Panel tamat level (dikongsi semua level) -->
+  <div class="tindih" id="panel-tamat" hidden>
+    <div class="kad-tamat">
+      <h2 id="pt-tajuk"></h2>
+      <p class="label-malap" id="pt-subtajuk"></p>
+      <p class="bintang-baris" id="pt-bintang"><span>★</span><span>★</span><span>★</span></p>
+      <p class="xp-besar" id="pt-xp"></p>
+      <div id="pt-butang"></div>
+    </div>
+  </div>
+
+  <!-- Cara Main -->
+  <div class="tindih" id="m-caramain" hidden>
+    <div class="kad-modal">
+      <h2>CARA MAIN</h2>
+      <div class="modal-isi" id="caramain-isi"></div>
+      <button class="butang utama" data-tutup>TUTUP</button>
+    </div>
+  </div>
+
+  <!-- Tetapan -->
+  <div class="tindih" id="m-tetapan" hidden>
+    <div class="kad-modal">
+      <h2>TETAPAN</h2>
+      <button class="butang bahaya" id="butang-set-semula">SET SEMULA KEMAJUAN</button>
+      <p class="label-malap" id="tetapan-maklum"></p>
+      <button class="butang" data-tutup>TUTUP</button>
+    </div>
+  </div>
+
+  <div id="notis" hidden></div>
+  <div id="memuat" hidden><span></span><p>Menyediakan AR…</p></div>
+  <div id="lapisan-kesan"></div>
+
+  <script type="module" src="js/app.js?v=1"></script>
 </body>
 </html>
