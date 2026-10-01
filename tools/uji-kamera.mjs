@@ -18,7 +18,7 @@ for (const s of skrin) {
   const page = await ctx.newPage();
   page.on('console', (m) => { if (m.type() === 'error') console.log(`[${s}] konsol:`, m.text()); });
   page.on('pageerror', (e) => console.log(`[${s}] ralat:`, e.message));
-  await page.goto(`http://127.0.0.1:8765/index.html?skrin=${s}`);
+  await page.goto(`${process.env.ASAS || 'http://127.0.0.1:8765'}/index.html?skrin=${s}`);
   let dikesan = false;
   for (let i = 0; i < 40 && !dikesan; i++) {
     await page.waitForTimeout(500);
