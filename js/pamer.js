@@ -38,10 +38,13 @@ class Pamer {
     this.ui.legenda.innerHTML = '';
     this.ui.pin.innerHTML = '';
     label.forEach((l, i) => {
+      // Setiap label = garis penunjuk + kepala anak panah (pada objek) + pin bernombor (dijarakkan).
+      const garis = document.createElement('div'); garis.className = 'pin-garis';
+      const panah = document.createElement('div'); panah.className = 'pin-panah';
       const p = document.createElement('div');
-      p.className = 'pin'; p.textContent = i + 1; p.hidden = true;
-      this.ui.pin.appendChild(p);
-      this.pin.push(p);
+      p.className = 'pin'; p.textContent = i + 1;
+      [garis, panah, p].forEach((e) => { e.hidden = true; this.ui.pin.appendChild(e); });
+      this.pin.push({ p, garis, panah, x: 0, y: 0 });
       const b = document.createElement('div');
       b.className = 'legenda-baris';
       b.innerHTML = `<span class="pin kecil">${i + 1}</span><span>${l.teks}</span>`;
@@ -61,14 +64,61 @@ class Pamer {
     t.pusing.rotation.set(this.condong, rad(this.isyarat.sudut), 0);
 
     this.ui.bekas.classList.toggle('dikesan', t.nampak);
-    if (!t.nampak) { this.pin.forEach((p) => { p.hidden = true; }); return; }
+    const sembunyi = (k) => { k.p.hidden = k.garis.hidden = k.panah.hidden = true; };
+    if (!t.nampak) { this.pin.forEach(sembunyi); return; }
     t.akar.updateMatrixWorld(true);
     this.animasi(dt);
-    this.pin.forEach((p, i) => {
+    this.susunPin();
+  }
+
+  /**
+   * Pin dijarakkan dari objeknya dan dihubungkan dengan anak panah, supaya nombor tidak menutup
+   * objek 3D. Arah jarakan: menjauhi pusat model pada skrin, dengan kecenderungan ke atas.
+   * Jika dua pin akan bertindih, pin yang kemudian dipanjangkan garisnya sehingga bebas.
+   */
+  susunPin() {
+    const t = this.tempat;
+    const JARAK = 52, JEJARI_PIN = 15, PANJANG_PANAH = 10, JURANG = 36;
+    const c = t.keSkrin(t.akar.getWorldPosition(tmp), tmp);
+    const cx = c ? c.x : 0, cy = c ? c.y : 0;
+    const diletak = [];
+    const lebar = this.ui.pin.clientWidth, tinggi = this.ui.pin.clientHeight;
+
+    this.pin.forEach((k, i) => {
       const titik = this.titik[i];
       const s = titik && t.keSkrin(this.model.localToWorld(tmp.copy(titik)), tmp);
-      p.hidden = !s;
-      if (s) p.style.transform = `translate(${s.x}px, ${s.y}px)`;
+      if (!s) { k.p.hidden = k.garis.hidden = k.panah.hidden = true; return; }
+      const sx = s.x, sy = s.y;
+
+      let dx = sx - cx, dy = sy - cy;
+      let n = Math.hypot(dx, dy) || 1;
+      dx = dx / n; dy = dy / n - 0.9;            // kecenderungan ke atas
+      n = Math.hypot(dx, dy) || 1; dx /= n; dy /= n;
+
+      // Cuba arah asal dahulu; jika pin akan bertindih dengan pin lain atau terkeluar dari skrin,
+      // pusingkan arah sedikit demi sedikit, kemudian panjangkan garis.
+      const asas = Math.atan2(dy, dx);
+      let panjang = JARAK, px = sx + dx * JARAK, py = sy + dy * JARAK, jumpa = false;
+      for (const tambah of [0, 24, 48]) {
+        for (const pusing of [0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8]) {
+          const x = sx + Math.cos(asas + pusing) * (JARAK + tambah);
+          const y = sy + Math.sin(asas + pusing) * (JARAK + tambah);
+          const dalam = x > 22 && x < lebar - 22 && y > 96 && y < tinggi - 22;
+          if (dalam && !diletak.some((d) => Math.hypot(d.x - x, d.y - y) < JURANG)) {
+            px = x; py = y; panjang = JARAK + tambah; jumpa = true; break;
+          }
+        }
+        if (jumpa) break;
+      }
+      diletak.push({ x: px, y: py });
+
+      const sudut = Math.atan2(sy - py, sx - px);            // arah dari pin ke objek
+      const panjangGaris = Math.max(0, panjang - JEJARI_PIN - PANJANG_PANAH);
+      k.p.hidden = k.garis.hidden = k.panah.hidden = false;
+      k.p.style.transform = `translate(${px}px, ${py}px)`;
+      k.garis.style.width = panjangGaris + 'px';
+      k.garis.style.transform = `translate(${px + Math.cos(sudut) * JEJARI_PIN}px, ${py + Math.sin(sudut) * JEJARI_PIN}px) rotate(${sudut}rad)`;
+      k.panah.style.transform = `translate(${sx}px, ${sy}px) rotate(${sudut}rad)`;
     });
   }
 

@@ -209,6 +209,13 @@ body.pratonton #ar { background: radial-gradient(ellipse at 50% 35%, #1f3a66, va
   position: absolute; left: -15px; top: -15px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%;
   background: var(--neon); color: var(--latar); font-size: 15px; font-weight: 900; box-shadow: 0 0 0 2px #06304a, 0 2px 6px rgba(0, 0, 0, .6);
 }
+/* Garis penunjuk dari pin ke objek, dengan kepala anak panah yang hujungnya tepat pada objek. */
+.pin-garis { position: absolute; left: 0; top: -1.5px; height: 3px; border-radius: 2px; transform-origin: 0 50%; background: var(--neon); box-shadow: 0 0 0 1px #06304a, 0 0 6px rgba(0, 212, 255, .7); }
+.pin-panah {
+  position: absolute; left: -12px; top: -7px; width: 0; height: 0; transform-origin: 12px 7px;
+  border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-left: 12px solid var(--neon);
+  filter: drop-shadow(0 0 1px #06304a) drop-shadow(0 0 3px rgba(0, 212, 255, .8));
+}
 .pin.kecil { position: static; flex: none; width: 22px; height: 22px; font-size: 12px; box-shadow: none; }
 .pamer-kaki { position: absolute; left: 10px; right: 10px; bottom: calc(10px + var(--bawah-selamat)); pointer-events: none !important; }
 .legenda { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; padding: 10px 12px; background: rgba(10, 30, 50, .9); border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(0, 212, 255, .7); }
