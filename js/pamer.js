@@ -17,6 +17,12 @@ class Pamer {
 
     // Titik label dikira dalam ruang tempatan model SEBELUM ia ditengahkan/diskala.
     this.titik = label.map((l) => {
+      // `antara`: titik tengah dua penanda — untuk bahagian yang pusat kotak sempadannya tidak
+      // jatuh pada objek itu sendiri (cth wayar yang mengelilingi papan).
+      if (l.antara) {
+        const [a, b] = l.antara.map((n) => cari(this.model, n));
+        if (a && b) return a.position.clone().add(b.position).multiplyScalar(0.5);
+      }
       const o = cari(this.model, l.objek);
       if (!o) return null;
       return o.isMesh || o.children.length ? pusat(o, this.model) : o.position.clone();
@@ -199,11 +205,11 @@ export class PamerSolar extends Pamer {
     }
 
     const status =
-      eksport ? 'SIANG  •  Bateri penuh — lebihan tenaga dihantar ke grid' :
-      menjana ? 'SIANG  •  Panel menjana kuasa dan mengecas bateri' :
-      gridBekal ? 'MALAM  •  Bateri habis — grid awam membekal rumah' :
-      siang ? 'SENJA  •  Bateri mula membekal rumah' :
-              'MALAM  •  Bateri membekal rumah';
+      eksport ? 'SIANG  •  Bateri bercas penuh — lebihan tenaga dieksport ke grid awam' :
+      menjana ? 'SIANG  •  Panel fotovolta menjana arus terus (AT) untuk mengecas bateri' :
+      gridBekal ? 'MALAM  •  Bateri kehabisan cas — bekalan beban diambil daripada grid awam' :
+      siang ? 'SENJA  •  Penjanaan menurun — bateri mula menyahcas ke beban' :
+              'MALAM  •  Bateri menyahcas — penyongsang membekalkan AU kepada beban';
     if (status !== this._status) { this.ui.status.textContent = status; this._status = status; }
   }
 }

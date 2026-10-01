@@ -100,7 +100,7 @@ export const LABEL_LITAR = [
   { objek: 'SelKering', teks: 'Sel Kering' },
   { objek: 'SuisTapak', teks: 'Suis' },
   { objek: 'Mentol', teks: 'Mentol' },
-  { objek: 'WayarPenyambung', teks: 'Wayar Penyambung' },
+  { objek: 'WayarPenyambung', teks: 'Wayar Penyambung', antara: ['Aliran_09', 'Aliran_10'] },
 ];
 
 export function xpMaksimumLevel(n) {

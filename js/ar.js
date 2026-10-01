@@ -127,7 +127,7 @@ function gelung() {
 
   if (modPratonton) {
     jejak.aktif = true;
-    jejak.pos.set(0, -0.35, -3);
+    jejak.pos.set(0, 0.1, -3);
   } else {
     let nampak = null;
     for (const a of mind.anchors) if (a.group.visible) { nampak = a; break; }
