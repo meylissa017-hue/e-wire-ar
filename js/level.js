@@ -117,7 +117,7 @@ export async function level1(ctx) {
 
   await ctx.hidupAR(pengawal);
   if (!hidup) return { tamat() {} };
-  tempat = new Penempatan({ lebarModel: 0.1, lebarSkrin: 0.42, naik: 0.14 });
+  tempat = new Penempatan({ lebarModel: 0.1, lebarSkrin: 0.42, naik: 0 });
   muatSoalan();
 
   return {
@@ -425,7 +425,7 @@ export async function level5(ctx) {
   sinarLampu.visible = false;
   model.add(sinarLampu);
 
-  tempat = new Penempatan({ lebarModel: 0.37, lebarSkrin: 0.72, naik: 0.2 });
+  tempat = new Penempatan({ lebarModel: 0.37, lebarSkrin: 0.72, naik: 0 });
   tengahkan(model, tempat.pusing);
 
   return {

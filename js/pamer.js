@@ -85,7 +85,7 @@ export class PamerSolar extends Pamer {
     this.tempoh = 24; this.pecahanSiang = 0.6;
     this.masa = 0; this.paras = 0.25; this.segmen = [];
     await this.sedia('SistemSolar', {
-      lebarSkrin: 0.8, naik: 0.12, condong: 26, kelajuanPutar: 9, label: LABEL_SOLAR, lebarModel: 15,
+      lebarSkrin: 0.8, naik: 0, condong: 26, kelajuanPutar: 9, label: LABEL_SOLAR, lebarModel: 15,
     });
     this.ui.petunjuk.textContent = 'Seret untuk memutar  •  cubit dua jari untuk zum';
   }
@@ -217,7 +217,7 @@ export class PamerLitar extends Pamer {
     this.masaLengkap = 5.5; this.masaTerbuka = 4.0;
     this.sudutTutup = 0; this.sudutBuka = 34;
     this.lengkap = true; this.sejakTukar = 0; this.sudutTuas = 0; this.fasa = 0;
-    await this.sedia('LitarAsas', { lebarSkrin: 0.78, naik: 0.12, condong: 24, kelajuanPutar: 8, label: LABEL_LITAR, lebarModel: 0.32 });
+    await this.sedia('LitarAsas', { lebarSkrin: 0.78, naik: 0, condong: 24, kelajuanPutar: 8, label: LABEL_LITAR, lebarModel: 0.32 });
     this.ui.petunjuk.textContent = 'Seret untuk memutar  •  cubit dua jari untuk zum';
   }
 
