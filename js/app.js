@@ -212,10 +212,16 @@ function ikat() {
     zarah.appendChild(z);
   }
 
-  // Android ada aplikasi penuh (ARCore lebih mantap) — tawarkan muat turun jika fail APK dihoskan bersama.
-  if (/Android/i.test(navigator.userAgent)) {
+  // Android ada aplikasi penuh (ARCore lebih mantap, boleh dipakai tanpa internet). Pautan APK
+  // hanya dipaparkan jika fail itu memang dihoskan bersama laman, dan diserlahkan pada telefon
+  // Android. iPhone tidak boleh memasang APK, jadi pautan itu disembunyikan di sana.
+  const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!iOS) {
     fetch('E-WIRE-AR.apk', { method: 'HEAD' }).then((r) => {
-      if (r.ok) { const a = $('pautan-apk'); a.href = 'E-WIRE-AR.apk'; a.hidden = false; }
+      if (!r.ok) return;
+      const a = $('pautan-apk');
+      a.hidden = false;
+      if (/Android/i.test(navigator.userAgent)) a.classList.add('serlah');
     }).catch(() => {});
   }
 }

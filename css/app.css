@@ -90,7 +90,9 @@ body.pratonton #ar { background: radial-gradient(ellipse at 50% 35%, #1f3a66, va
 @keyframes denyut-logo { 50% { transform: scale(1.03); } }
 
 .menu-butang { position: relative; width: 100%; display: flex; flex-direction: column; gap: 12px; }
-.pautan-apk { position: relative; margin-top: 14px; color: var(--neon); font-size: 13px; }
+.muat-turun { position: relative; margin-top: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; flex: none; }
+.muat-turun a { color: var(--neon); font-size: 13px; font-weight: 700; }
+.muat-turun a.serlah { padding: 9px 16px; border-radius: 10px; color: var(--latar); background: var(--emas); text-decoration: none; }
 
 /* ------------------------------------------------------------------ bar atas & XP */
 .bar-atas { width: 100%; display: flex; align-items: center; gap: 10px; flex: none; }
